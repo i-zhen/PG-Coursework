@@ -1,0 +1,31 @@
+Yi Zhen
+Assignment 5. Due 4pm Thursday 24 March 2016.
+
+Well done. 5(/75)
+Key: k(m/75)
+k points achieved (out of 5)
+total out of 75
+
+    Mock Exam
+    1.
+      i.	9/9
+      ii.	8/8
+      iii.	8/8
+    2.
+      i.	12/12  [1] [2]
+      ii.	13/13
+    3.
+      i.	12/12  [3]
+      ii.	13/13  [4]
+
+[1] Mark change to com with !!!.
+
+[2] Declare leaf and branch next to each other in tm.
+
+[3] Mark changes to ty, tm, value, subst with !!!.
+    (No points deducted, but strictly speaking I should deduct one point
+    for 2i.)
+
+[4] It is better to first prove a suitable canonical
+    forms lemma for the tree type.
+

@@ -1,0 +1,213 @@
+EPL Coursework 1 Feedback for: S1563190
+
+Q1: Substitution   -   3 / 3
+When the binder and variable is the same,
+do no substitute the body of a lambda. This
+is because the binder should shadow any
+occurances of x.
+
+Rec is fine.
+
+Syntatic forms are fully desugared before
+calling substitution, so these cases are
+not required.
+
+Your commented out solutions are nearly there,
+LetPair is fine. LetRec and LetFun have similar
+problems to lambda, see solution for correct
+implementation.
+
+Q2: Desugaring     -   3 / 3
+Correct.
+
+Q3: Operations     -   2 / 2
+Correct.
+
+Q4: Evaluation     -   3 / 4
+Evaluation is nearly all correct, only issue
+is for rec.
+
+f -> env(f)
+
+f should be extended the the RecV term, not
+something from the environment. When you first
+call the function f will not be bound to the
+recursive function (it may not be set at all).
+
+Q5: Typechecking   -   3 / 4
+
+Error in typechecking recursive fuctions. The
+typing context must be extended with f, where f
+is the function type of the recursive function.
+You extend f with the return type of the funtion.
+
+
+Q6: Fibonacci      -   2 / 2
+Correct
+
+Q7: Substring      -   2 / 2
+Correct (The tests failed for these programs because of
+the issue with recursion in evaluation, the programs
+are correct).
+
+TOTAL              -   18 / 20
+
+Auto-marker Output:
+
+************************ Substitution ************************
+* Case for Bool                                     [Passed] *
+* Substitution propagates under eq                  [Passed] *
+* Substitution propagates under if                  [Passed] *
+* Case for String                                   [Passed] *
+* Substitution propagates under length              [Passed] *
+* Substitution propagates under index               [Passed] *
+* Substitution propagates under concat              [Passed] *
+* Substitution propagates under pairs               [Passed] *
+* Substitution propagates under fst                 [Passed] *
+* Substitution propagates under snd                 [Passed] *
+* Basic Lambda with different variable              [Passed] *
+* Basic Lambda with same argument                   [Failed] *
+* Basic Lambda avoiding capture                     [Passed] *
+* Substitution propagates under apply               [Passed] *
+* Basic Rec with different variable                 [Passed] *
+* Basic Rec with same function name                 [Passed] *
+* Basic Rec with same arg name                      [Passed] *
+* Basic Rec avoiding capture - function             [Passed] *
+* Basic Rec avoiding capture - argument             [Passed] *
+* Basic Rec avoiding capture - both                 [Passed] *
+**************************************************************
+
+************************* Desugaring *************************
+* Basic Let Pair                                    [Passed] *
+* Basic Let Fun                                     [Passed] *
+* Basic Let Rec                                     [Passed] *
+* Case for Bool                                     [Passed] *
+* Desugar propagates under eq                       [Passed] *
+* Desugar propagates under if-statement             [Passed] *
+* Case for String                                   [Passed] *
+* Desugar propagates under length                   [Passed] *
+* Desugar propagates under index                    [Passed] *
+* Desugar propagates under concat                   [Passed] *
+* Case for Var                                      [Passed] *
+* Desugar propagates under let                      [Passed] *
+* Desugar propagates under pairs                    [Passed] *
+* Desugar propagates under fst                      [Passed] *
+* Desugar propagates under snd                      [Passed] *
+* Desugar propagates under lambda                   [Passed] *
+* Desugar propagates under apply                    [Passed] *
+* Desugar propagates under rec                      [Passed] *
+**************************************************************
+
+************************** Operation *************************
+* Multiplication                                    [Passed] *
+* Eq Int (True)                                     [Passed] *
+* Eq Int (False)                                    [Passed] *
+* Eq String (True)                                  [Passed] *
+* Eq String (False)                                 [Passed] *
+* Eq Bool (True)                                    [Passed] *
+* Eq Bool (False)                                   [Passed] *
+* Length ""                                         [Passed] *
+* Length "foobar"                                   [Passed] *
+* Index "foobar" 0                                  [Passed] *
+* Index "foobar" 1                                  [Passed] *
+* Index "foobar" 5                                  [Passed] *
+* Concat "" "foobar"                                [Passed] *
+* Concat "foobar" ""                                [Passed] *
+* Concat "foo" "bar"                                [Passed] *
+**************************************************************
+
+************************* Evaluation *************************
+* Case for Bool (True)                              [Passed] *
+* Case for Bool (False)                             [Passed] *
+* Eq Int (True)                                     [Passed] *
+* Eq Int (False)                                    [Passed] *
+* Eq String (True)                                  [Passed] *
+* Eq String (False)                                 [Passed] *
+* Eq Bool (True)                                    [Passed] *
+* Eq Bool (False)                                   [Passed] *
+* If (True)                                         [Passed] *
+* If (False)                                        [Passed] *
+* Case for String                                   [Passed] *
+* Length                                            [Passed] *
+* Index                                             [Passed] *
+* Concat                                            [Passed] *
+* Var                                               [Passed] *
+* Let empty env                                     [Passed] *
+* Let shadow env                                    [Passed] *
+* Pair                                              [Passed] *
+* Fst                                               [Passed] *
+* Snd                                               [Passed] *
+* Lambda - empty                                    [Passed] *
+* Lambda - non-empty                                [Passed] *
+* Rec - empty                                       [Passed] *
+* Rec - non-empty                                   [Passed] *
+* Apply Lambda empty env                            [Passed] *
+* Apply Lambda bound env                            [Passed] *
+* Apply Evaluates Fun                               [Passed] *
+* Case for Rec without recursion                    [Failed] *
+* Case for Rec with recursion                       [Failed] *
+**************************************************************
+
+************************ Type-Checking ***********************
+* Subtraction                                       [Passed] *
+* Multiplication                                    [Passed] *
+* Case for Bool (True)                              [Passed] *
+* Case for Bool (False)                             [Passed] *
+* Eq Int                                            [Passed] *
+* Eq String                                         [Passed] *
+* Eq Bool                                           [Passed] *
+* Eq (ill-typed)                                    [Passed] *
+* If Then Else                                      [Passed] *
+* If Then Else (ill-typed condition)                [Passed] *
+* If Then Else (different branches)                 [Passed] *
+* Case for String                                   [Passed] *
+* Length                                            [Passed] *
+* Length (ill-typed)                                [Passed] *
+* Index                                             [Passed] *
+* Index (ill-typed string)                          [Passed] *
+* Index (ill-typed index)                           [Passed] *
+* Concat                                            [Passed] *
+* Concat (ill-typed 1)                              [Passed] *
+* Concat (ill-typed 2)                              [Passed] *
+* Pair                                              [Passed] *
+* First                                             [Passed] *
+* First (ill-typed)                                 [Passed] *
+* Second                                            [Passed] *
+* Second (ill-typed)                                [Passed] *
+* Lambda Int ID                                     [Passed] *
+* Rec Int ID                                        [Passed] *
+* Rec Int Recur                                     [Failed] *
+* Apply                                             [Passed] *
+* Apply (ill-typed domain)                          [Passed] *
+* Apply (ill-typed applier)                         [Passed] *
+* Let Fun Int ID                                    [Passed] *
+* Let Fun Int App                                   [Passed] *
+* Let Rec Int ID                                    [Passed] *
+* Let Rec Int Recur                                 [Passed] *
+* Let Rec Int App                                   [Passed] *
+* Let Pair ID                                       [Passed] *
+* Let Pair (ill-typed pair)                         [Passed] *
+**************************************************************
+
+*********************** Simple Programs **********************
+* Fib has the correct type                          [Failed] *
+* Substring has the correct type                    [Failed] *
+* Fib 1                                             [Failed] *
+* Fib 2                                             [Failed] *
+* Fib 8                                             [Failed] *
+* Fib 12                                            [Failed] *
+* Substring '' 'foo'                                [Failed] *
+* Substring 'needle' 'haystackneedlehaystack'       [Failed] *
+* Substring 'needle' 'haystackneedlhaystack'        [Failed] *
+* Substring 'needle' 'haystackneedle'               [Failed] *
+**************************************************************
+
+*************************** Results **************************
+* Substitution                                         19/20 *
+* Desugaring                                           18/18 *
+* Operations                                           15/15 *
+* Evaluation                                           27/29 *
+* Type-Checking                                        37/38 *
+* Simple Programs                                       0/10 *
+* TOTAL                                              116/130 *
+**************************************************************

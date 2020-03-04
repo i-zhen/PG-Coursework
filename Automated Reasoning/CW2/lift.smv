@@ -1,0 +1,191 @@
+--=========================================================================
+-- AR 2015-16: Coursework 2
+--=========================================================================
+--=========================================================================
+-- MODEL OF LIFT SYSTEM
+--=========================================================================
+---------------------------------------------------------------------------
+-- Section 3.3, Q3
+---------------------------------------------------------------------------
+
+-- <INSTRUCTIONS> 
+--   After a copy of this file has been made named lift-fixed.smv,
+--   edit lift-fixed.smv to fix the bug and add a brief description
+--   here of what the bug is and why your changes fix it.  
+
+--   Do *not* make any alterations to your original lift.smv.
+
+--==========================================================================
+-- Button model  
+--==========================================================================
+--  A button being active corresponds to a button in real life being lit-up.
+
+--  An inactive button non-deterministically either stays inactive or
+--  becomes active, The inactive-active transition models a button
+--  press.
+
+--  An active button is only made inactive on some reset signal input being
+--  asserted.
+
+--  A button starts off inactive.
+
+MODULE button(reset)
+  VAR
+    active : boolean;
+  ASSIGN
+    init(active) := FALSE;
+    next(active) := 
+      case
+        active = TRUE : reset ? FALSE : TRUE;
+        active = FALSE : {TRUE, FALSE};
+      esac;
+
+--==========================================================================
+--Model of Lift
+--==========================================================================
+-- When input go_up or go_dn is asserted, move lift in indicated direction,
+-- if possible.
+
+MODULE lift_model(go_up, go_dn)
+  VAR
+    position : 0 .. 3;  -- Floor lift is at
+    moving : boolean;  
+  ASSIGN
+
+    init(position) := 0;
+    next(position) := 
+      case
+        go_up & position != 3 : position + 1;
+        go_dn & position != 0 : position - 1;
+        TRUE                  :position;
+      esac;
+
+    init(moving) := FALSE;
+    next(moving) := 
+      case
+        moving = FALSE & go_up & position != 3 : TRUE; 
+        moving = FALSE & go_dn & position != 0 : TRUE; 
+        moving = TRUE  & go_up & position = 3  : FALSE;
+        moving = TRUE  & go_dn & position = 0  : FALSE;
+        moving = TRUE  & !go_up & !go_dn       : FALSE;
+        TRUE                                   : moving;
+      esac;
+    
+--==========================================================================
+-- Main: Controller + buttons + lift 
+--==========================================================================
+
+MODULE main
+  VAR
+    lift : lift_model(go_up, go_dn);
+
+    mode : {going_up, going_dn, idle};
+
+    -- Call lift for going up
+    up_button0   : button(stopped_at0);
+    up_button1   : button(stopped_at1);
+    up_button2   : button(stopped_at2);
+
+     -- Call lift for going down
+    dn_button3   : button(stopped_at3);
+    dn_button2   : button(stopped_at2);
+    dn_button1   : button(stopped_at1);
+
+    -- Request floor within lift
+    floor_button0 : button(stopped_at0);
+    floor_button1 : button(stopped_at1);
+    floor_button2 : button(stopped_at2);
+    floor_button3 : button(stopped_at3);
+
+  DEFINE
+    -- Identifiers for resetting buttons
+    stopped_at0 := lift.position = 0 & !lift.moving;
+    stopped_at1 := lift.position = 1 & !lift.moving;
+    stopped_at2 := lift.position = 2 & !lift.moving;
+    stopped_at3 := lift.position = 3 & !lift.moving;
+
+    -- Control signals for lift
+    go_up := mode = going_up & ! (service_up & lift.moving);
+    go_dn := mode = going_dn & ! (service_dn & lift.moving);
+
+    -- Condition for when request from button should be serviced while
+    -- lift is moving and going_up.
+    service_up1 := 
+      lift.position = 1 & ( floor_button1.active | up_button1.active);
+    service_up2 := 
+      lift.position = 2 & ( floor_button2.active | up_button2.active);
+    service_up3 := 
+      lift.position = 3 & ( floor_button3.active | dn_button3.active);
+
+    service_up := service_up1 | service_up2 | service_up3;
+
+    -- Condition for when request from button should be serviced while
+    -- lift is moving and going_dn.
+    service_dn2 := 
+      lift.position = 2 & ( floor_button2.active | dn_button2.active);
+    service_dn1 := 
+      lift.position = 1 & ( floor_button1.active | dn_button1.active);
+    service_dn0 := 
+      lift.position = 0 & ( floor_button0.active | up_button0.active);
+
+    service_dn := service_dn2 | service_dn1 | service_dn0;
+
+
+    -- Build-up various combinations of button requests for service
+
+    req0 := up_button0.active | floor_button0.active ;
+    req1 := up_button1.active | dn_button1.active | floor_button1.active;
+    req2 := up_button2.active | dn_button2.active | floor_button2.active;
+    req3 := dn_button3.active | floor_button3.active;
+
+    req_above2 := req3;
+    req_above1 := req2 | req_above2;
+    req_above0 := req1 | req_above1;
+
+    req_below1 := req0;
+    req_below2 := req1 | req_below1;
+    req_below3 := req2 | req_below2;
+
+    -- There a request from some floor above the current position
+    req_above_posn := 
+        case
+           lift.position = 0 : req_above0;
+           lift.position = 1 : req_above1;
+           lift.position = 2 : req_above2;
+           TRUE           : FALSE;      -- lift.position = 3
+        esac;
+
+    -- There a request from some floor below the current position
+    req_below_posn := 
+        case
+           lift.position = 1 : req_below1;
+           lift.position = 2 : req_below2;
+           lift.position = 3 : req_below3;
+           TRUE           : FALSE;       -- lift.position = 0 
+        esac;
+
+  ASSIGN
+
+    -- The transitions for the lift controller state machine
+    init(mode) := idle;
+    next(mode) := 
+      case
+        mode = idle & req_above_posn 
+                     & req_below_posn : {going_up, going_dn};
+        mode = idle & req_above_posn  : going_up;
+        mode = idle & req_below_posn  : going_dn;
+        mode = idle : idle;
+
+        mode = going_up & req_above_posn : going_up;
+        mode = going_up & !req_above_posn : idle;
+
+        mode = going_dn & req_below_posn : going_dn;
+        mode = going_dn & !req_below_posn : idle;
+      esac;
+
+--==========================================================================
+-- Bring in properties to check
+--==========================================================================
+
+#include "lift-properties.smv"
+

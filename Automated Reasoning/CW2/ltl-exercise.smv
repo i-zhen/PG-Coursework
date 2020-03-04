@@ -1,0 +1,256 @@
+--=========================================================================
+-- AR 2015-16: Coursework 2
+--=========================================================================
+-- Student UUN: s1563190
+
+--=========================================================================
+-- Sec 2.1: LTL Exercise
+--=========================================================================
+
+----------------------------------------------------------------------------
+-- Model
+----------------------------------------------------------------------------
+
+-- <INSERT NuSMV MODEL HERE>
+MODULE main
+VAR
+    -- 1 .. 4 means that the state p1 to p4 in FSM
+    state : 1..4;
+DEFINE
+    current_state := [[FALSE, FALSE], [FALSE, TRUE], [TRUE, FALSE], [TRUE, TRUE]];
+    a := current_state[state - 1][0];
+    b := current_state[state - 1][1];
+ASSIGN
+    init(state)   := 3;
+    next(state)   := case
+        state = 1 : 2;
+        state = 2 : 2;
+        state = 3 : {1, 2, 4};  -- multiple choice here
+        state = 4 : 3;
+    esac;
+
+----------------------------------------------------------------------------
+-- Identifying satisfying paths
+----------------------------------------------------------------------------
+
+-- <BRIEFLY EXPLAIN HOW YOU DO THIS AND WHY IT WORKS>
+
+-- The esiar way is to check negation of each LTLSPEC. As introduced in handout.
+
+-- I just use q1, q2, q3 and q4(1,2,3,4 for short) to represent the different state.
+-- By observation, this FSM is an NFA. it has multiple choice when you stay at the state q3.
+-- Thus, we should to build a model that support NFA. I use case expression to represent that
+-- when current state is q3, then it can be one of q1, q2, q4 at next state. After that,
+-- I continue to observe the satisfying paths, some of them are clear, but others maybe not.
+-- I tried to do 'DELETE' here(sometimes do add paths). Deleting the redundant edges of FSM,
+-- and do the model checking. First four of them works, but the last one need do more. I not only
+-- deleted the edges, but also added a new edge from q4 to q1 of it.
+
+-- Because of doing that, it is easy to build LTL specification and check it.
+
+----------------------------------------------------------------------------
+-- Part (a)
+----------------------------------------------------------------------------
+-- Query for checking validity
+LTLSPEC G a;
+-- Valid: No
+
+-- Example satisfying path
+
+-- Following table is the path of satisfying:
+-- It is a part of original FSM
+
+-- INPUT\Current state  q3  q4
+-- no input             q4  q3
+
+-- q3 -> q4 -> q3 -> q4 ......
+
+-- Loop starts here
+-- -> State: 1.1 <-
+--  state = 3
+--  b = FALSE
+--  a = TRUE
+--  current_state[0][0] = FALSE
+--  current_state[0][1] = FALSE
+--  current_state[1][0] = FALSE
+--  current_state[1][1] = TRUE
+--  current_state[2][0] = TRUE
+--  current_state[2][1] = FALSE
+--  current_state[3][0] = TRUE
+--  current_state[3][1] = TRUE
+-- -> State: 1.2 <-
+--  state = 4
+--  b = TRUE
+-- -> State: 1.3 <-
+--  state = 3
+--  b = FALSE
+
+----------------------------------------------------------------------------
+-- Part (b)
+----------------------------------------------------------------------------
+
+-- Query for checking validity
+LTLSPEC a U b;
+-- Valid: No
+
+-- Example satisfying path
+
+-- Following table is the path of satisfying:
+-- It is a part of original FSM
+
+-- INPUT\Current state  q3  q4
+-- no input             q4  q3
+
+-- q3 -> q2 -> q2 -> q2 ......
+-- or q3 -> q4 -> q3 -> q4 ......
+
+-- -> State: 2.1 <-
+--  state = 3
+--  b = FALSE
+--  a = TRUE
+--  current_state[0][0] = FALSE
+--  current_state[0][1] = FALSE
+--  current_state[1][0] = FALSE
+--  current_state[1][1] = TRUE
+--  current_state[2][0] = TRUE
+--  current_state[2][1] = FALSE
+--  current_state[3][0] = TRUE
+--  current_state[3][1] = TRUE
+-- -- Loop starts here
+-- -> State: 2.2 <-
+--  state = 2
+--  b = TRUE
+--  a = FALSE
+-- -- Loop starts here
+-- -> State: 2.3 <-
+-- -> State: 2.4 <-
+
+----------------------------------------------------------------------------
+-- Part (c)
+----------------------------------------------------------------------------
+
+-- Query for checking validity
+LTLSPEC a U X(a & (! b));
+-- Valid: No
+
+-- Example satisfying path
+
+-- Following table is the path of satisfying:
+-- It is a part of original FSM
+
+-- q3 -> q4 -> q3 -> q1 -> q2 -> q2 ......
+
+-- -> State: 3.1 <-
+-- state = 3
+--  b = FALSE
+--  a = TRUE
+--  current_state[0][0] = FALSE
+--  current_state[0][1] = FALSE
+--  current_state[1][0] = FALSE
+--  current_state[1][1] = TRUE
+--  current_state[2][0] = TRUE
+--  current_state[2][1] = FALSE
+--  current_state[3][0] = TRUE
+--  current_state[3][1] = TRUE
+-- -> State: 3.2 <-
+--  state = 4
+--  b = TRUE
+-- -> State: 3.3 <-
+--  state = 3
+--  b = FALSE
+-- -> State: 3.4 <-
+--  state = 1
+--  a = FALSE
+-- -- Loop starts here
+-- -> State: 3.5 <-
+--  state = 2
+--  b = TRUE
+-- -> State: 3.6 <-
+
+----------------------------------------------------------------------------
+-- Part (d)
+----------------------------------------------------------------------------
+
+-- Query for checking validity
+LTLSPEC X(!b) & G(!a | !b);
+-- Valid: No
+
+-- Example satisfying path
+
+-- Following table is the path of satisfying:
+-- It is a part of original FSM
+
+-- initial state is q3
+
+-- INPUT\Current state  q3  q2  q1
+-- no input             q1  q2  q2
+
+-- q3 -> q1 -> q2 -> q2 ... -> q2 -> ...
+
+-- -> State: 4.1 <-
+--  state = 3
+--  b = FALSE
+--  a = TRUE
+--  current_state[0][0] = FALSE
+--  current_state[0][1] = FALSE
+--  current_state[1][0] = FALSE
+--  current_state[1][1] = TRUE
+--  current_state[2][0] = TRUE
+--  current_state[2][1] = FALSE
+--  current_state[3][0] = TRUE
+--  current_state[3][1] = TRUE
+-- -> State: 4.2 <-
+--  state = 1
+--  a = FALSE
+-- -- Loop starts here
+-- -> State: 4.3 <-
+--  state = 2
+--  b = TRUE
+-- -> State: 4.4 <-
+
+----------------------------------------------------------------------------
+-- Part (e)
+----------------------------------------------------------------------------
+
+-- Query for checking validity
+LTLSPEC X(a & b) & F(!a & !b);
+-- Valid: No
+
+-- Example satisfying path
+
+-- Following table is the path of satisfying:
+-- It is a part of original FSM
+
+-- initial state is q3
+
+-- INPUT\Current state  q3  q4
+-- no input             q4  q1
+
+-- or q3 -> q4 -> q3 -> q1 -> q2 -> q2 ...
+
+-- -> State: 5.1 <-
+--  state = 3
+--  b = FALSE
+--  a = TRUE
+--  current_state[0][0] = FALSE
+--  current_state[0][1] = FALSE
+--  current_state[1][0] = FALSE
+--  current_state[1][1] = TRUE
+--  current_state[2][0] = TRUE
+--  current_state[2][1] = FALSE
+--  current_state[3][0] = TRUE
+--  current_state[3][1] = TRUE
+-- -> State: 5.2 <-
+--  state = 4
+--  b = TRUE
+-- -> State: 5.3 <-
+--  state = 3
+--  b = FALSE
+-- -> State: 5.4 <-
+--  state = 1
+--  a = FALSE
+-- -- Loop starts here
+-- -> State: 5.5 <-
+--  state = 2
+--  b = TRUE
+-- -> State: 5.6 <-

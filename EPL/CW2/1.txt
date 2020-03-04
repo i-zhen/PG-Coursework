@@ -1,0 +1,28 @@
+\documentclass{article}
+\usepackage[colorlinks=true]{hyperref}
+\begin{document}
+%%% Beginning of MiniMD content
+\section{Hello, you dears!}
+This is a test. This is also a test. 
+
+\subsection{Hello again!}
+\textbf{This is a really bold test!} 'This test was developed in Pisa.' 
+
+\begin{itemize}
+  \item We wanted to \textbf{test} this
+  \item and this
+  \item and this
+\end{itemize}
+
+Our priorities for testing are as follows: 
+
+\begin{enumerate}
+  \item Make sure things don't break
+  \item Make sure other things don't break
+  \item Make sure yet more things don't break.
+\end{enumerate}
+
+A good way to ensure things don't break is to \textit{formally} \textbf{verify} them using a language like \href{http://www.idris-lang.org}{Idris}. 
+
+%%% End of MiniMD content
+\end{document}

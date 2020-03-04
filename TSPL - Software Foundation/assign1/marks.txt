@@ -1,0 +1,47 @@
+Yi Zhen
+Assignment 1. Due 4pm Thursday 28 January 2016.
+
+Well done. 5(3/4)
+Key: k(m/n)
+k points achieved (out of 5)
+(m/n) number of stretch exercises completed/attempted.
+
+
+    Basics (Basics.v):
+        factorial			good
+        blt_nat				skipped [1]
+        blt_nat directly (stretch)	good
+        mult_S_1			good
+        boolean_functions		good [2]
+        andb_eq_orb			good [3]
+        binary (stretch) 		good [4]
+    Induction (Induction.v):
+        basic_induction			good [5]
+        mult_comm			good [5]
+        beq_nat_refl			good
+        binary_commute (stretch)	good
+        binary_inverse (stretch) 	skipped
+    Lists (Lists.v):
+        list_funs			good
+        list_exercises			good
+        rev_injective (stretch)		attempted [6]
+        hd_error			good
+        option_elim_hd			good
+        update_eq			good
+        update_neq 			good
+
+[1] best to try both ways, non-recursive and recursive.
+
+[2] spelling in comment: rewtire -> rewrite!
+
+[3] "unify false and true": misleading. Better "rewrite false to true".
+
+[4] Could use names reminiscent of a string of bits:
+    O --> empty (e.g., E)
+    B --> add 0 to end of string (e.g., S0)
+    M --> add 1 to end of string (e.g., S1)
+
+[5] You sometimes use more cases than necessary.
+
+[6] You tried the hard proof. Easy  proof uses rev_involutive.
+

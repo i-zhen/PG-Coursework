@@ -1,0 +1,20 @@
+#1 Current Flags:  CFLAGS="-O3"
+Average running time: 	10.60043499s
+Variance of time: 	0.04105727
+Running stable? True
+
+#2 Current Flags:  CFLAGS="-O2"
+Average running time: 	10.85092080s
+Variance of time: 	0.04523400
+Running stable? True
+
+#3 Current Flags:  CFLAGS="-O1"
+Average running time: 	11.58335600s
+Variance of time: 	0.00915159
+Running stable? True
+
+#4 Current Flags:  CFLAGS="-O0"
+Average running time: 	35.74867246s
+Variance of time: 	0.65695674
+Running stable? False
+

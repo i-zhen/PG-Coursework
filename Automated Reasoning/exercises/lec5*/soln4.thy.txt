@@ -1,0 +1,87 @@
+theory tut3_solutions
+imports Main
+
+begin
+
+(* Solutions using explicit instantiation and avoiding introduction
+   of meta-variables
+*)
+   
+lemma one: "(\<forall> x. P x \<longrightarrow> Q) \<longrightarrow> ((\<exists> x. P x) \<longrightarrow> Q)"  
+apply (rule impI)
+apply (rule impI)
+apply (erule exE)
+apply (erule_tac x="x" in allE)
+apply (erule mp)
+apply assumption
+done
+
+lemma two: "\<not>(\<exists> x. P x) \<Longrightarrow> \<forall> x. \<not>P x" 
+apply (rule allI)
+apply (rule notI)
+apply (erule notE)
+apply (rule_tac x="x" in exI)
+by assumption
+
+lemma three: "\<not>(\<forall> x. P x) \<Longrightarrow> \<exists> x. \<not>P x"
+apply (rule ccontr)
+apply (erule notE)
+apply (rule allI)
+apply (rule ccontr)
+apply (erule notE)
+apply (rule_tac x="x" in exI)
+by assumption
+
+
+(* Solutions exploiting meta-variables that avoid explicit
+   introduction of instantiating terms.  Unification calculates
+   appropriate instantiations of the meta-variables automatically.  
+
+   These solutions are presented for your interest.  The course does
+   not require you to understand how they work.
+
+*)
+  
+(* Observe here in lemma one_a:
+
+   - After the erule allE, the meta-variable introduced has a function type
+     and is applied to the variable x, bound by a meta-forall quantifier.
+
+     Why?  Well isabelle instantiates meta-variables using capture-avoiding
+     substitution.  Here the meta-variable introduced can be a function
+     that then makes use of the variable x.  
+
+  - In the `apply assumption' step, Isabelle uses Higher-order unification to
+    unify terms  ?f x  and x, yielding the substitution [(\y.y) / ?f].
+    (\y is `lambda y').  Higher-order unification has the lambda calculus
+    beta rule built in, so substituting \y.y for ?f yields `(\y.y) x' which
+    is equal by the beta-rule to x.
+*)
+
+lemma one_a: "(\<forall> x. P x \<longrightarrow> Q) \<longrightarrow> ((\<exists> x. P x) \<longrightarrow> Q)"  
+apply (rule impI)
+apply (rule impI)
+apply (erule exE)
+apply (erule allE)
+apply (erule mp)
+apply assumption
+done
+
+lemma two_a: "\<not>(\<exists> x. P x) \<Longrightarrow> \<forall> x. \<not>P x" 
+apply (rule allI)
+apply (rule notI)
+apply (erule notE)
+apply (rule exI)
+by assumption
+
+lemma three_a: "\<not>(\<forall> x. P x) \<Longrightarrow> \<exists> x. \<not>P x"
+apply (rule ccontr)
+apply (erule notE)
+apply (rule allI)
+apply (rule ccontr)
+apply (erule notE)
+apply (rule exI)
+by assumption
+
+
+end

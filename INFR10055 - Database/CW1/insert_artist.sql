@@ -1,0 +1,10 @@
+﻿INSERT INTO artist VALUES ('Avril Lavigne','PERSON','Canada');
+INSERT INTO artist VALUES ('Sex Pistols','BAND','UK');
+INSERT INTO artist VALUES ('Taylor Swift','PERSON','USA');
+INSERT INTO artist VALUES ('Beatles','BAND','UK');
+INSERT INTO artist VALUES ('Paolo Meneguzzi','PERSON','Italy');
+INSERT INTO artist VALUES ('Madonna','PERSON','USA');
+INSERT INTO artist VALUES ('Guns N Roses','BAND','USA');
+INSERT INTO artist VALUES ('Van Halen','BAND','USA');
+INSERT INTO artist VALUES ('Jeff Beck','PERSON','UK');
+INSERT INTO artist VALUES ('Eric Clapton','PERSON','UK');

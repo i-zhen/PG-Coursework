@@ -1,0 +1,98 @@
+1.  
+
+The example is in fact on wikipedia page for modus ponens:
+
+https://en.wikipedia.org/wiki/Modus_ponens
+
+      p    |  q  |  p -> q
+    -----------------------
+      T       T       T
+      T       F       F
+      F       T       T
+      F       F       F
+
+For   p -> q    p
+      -----------
+          q
+
+Check: whenever p -> q and q are both true, so is q.
+the only place where p and p -> q are both T is first line;
+in that line q is true.
+
+2. (implication in opposite direction, comma is conjunction)
+
+q /\ r -> p
+s -> q
+t -> r
+r -> t
+s
+
+The algorithm is basic pure Prolog interpreter.
+
+Tree should indicate order (by saying in English, or by numbering nodes):
+
+              p 1
+               |
+             q, r  2
+               |
+               t 3
+               |
+               r 4
+               |
+               t 5   in cycle loop
+
+(c) Incompleteness means that a query has a solution (for given program),
+and the solution is not found.  The example here does *not* show incompleteness,
+because the query does not have a solution, regardless of how search is done.
+
+(d)  A decision procedure for logical consequence 
+     is an algorithm with two properties:
+     * any answer returned is correct
+     * it terminates on all possible inputs.
+
+The obvious fix to the incomplete interpreter is to add a loop check;
+if search returns to a state previously encountered, do not search
+further down that branch.
+
+eg, take the state to be the set (not list) of atoms that form the current goal;
+keep a record of the sets previously examined in the branch, and backtrack
+if return to the same set. This will give termination (why?), but
+harder to show that no solutions are lost by restricting search in this way.
+(If anyone has a counter-example, let me know.)
+
+3.  f({}) = { s}, f(f({})) = {q,s}, f(f(f({}))) = {q,s}, so {q,s} is fixed point.
+
+(next using C=  for \subseteq):
+
+   f is monotone if X C= Y -> f(X) C= f(Y).
+
+   So suppose Y1 C= Y2, and show f(Y1) C= f(Y2).
+
+  It is enough to look at the 3 components separately,
+   since if A1 C= A2 and B1 C= B2 and C1 C= C2, then 
+   A1 U A2 U A3 C= A2 U B2 U B3.
+
+  But: Y1 C= Y2, Base = Base, so just check third component.
+
+  If a is in Y1, because s1, .. sn in Y1, then si, .. sn in Y2, so a in Y2.
+
+4. There are only two cases to consider, p true, p false; in both cases
+   we get p true, since we have in the logical version " (not p) -> p ".
+
+   Using truth table, as in Q1, show that inference
+
+         ~p -> p
+         -------
+            p
+
+is sound:
+
+       p  ~p   ~p -> p
+      ----------------
+       T   F       T
+       F   T       F
+
+   Prolog loops on query of p,
+   given just this clause as program, since it calls \+ p,
+   which calls p which calls \+ p.
+    

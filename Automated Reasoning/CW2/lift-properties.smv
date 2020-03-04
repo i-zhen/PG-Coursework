@@ -1,0 +1,134 @@
+--=========================================================================
+-- AR 2015-16: Coursework 2
+--=========================================================================
+-- Student UUN: s1563190
+
+--=========================================================================
+-- PROPERTIES OF LIFT SYSTEM
+--=========================================================================
+-- This file is not a standalone NuSMV file: it is to be included in
+-- lift.smv or lift-fixed.smv.
+
+-- The CTL and LTL properties in this file are numbered.  To have
+-- NuSMV check just the property numbered <p>, run it with the added
+-- option -n <p>.  
+
+-- NuSMV always numbers CTL properties first, so the numbers for the
+-- LTL properties do not start from 0.
+
+---------------------------------------------------------------------------
+-- Definitions for extra boolean-valued identifiers used in property formulas
+---------------------------------------------------------------------------
+DEFINE
+    -- 3.2.1.a
+    go__up := mode = going_up;
+    go__dn := mode = going_dn;
+    ifidle := mode = idle;
+    -- 3.2.1.b
+    req_floor_0 := req0 & lift.position != 0;
+    req_floor_1 := req1 & lift.position != 1;
+    req_floor_2 := req2 & lift.position != 2;
+    req_floor_3 := req3 & lift.position != 3;
+    -- 3.2.1.c
+    premise := stopped_at0          &
+               floor_button1.active &
+               floor_button2.active;
+    -- 3.2.1.d
+    premise2 := stopped_at0        &
+                dn_button1.active  &
+                dn_button2.active;
+    extra    := !req0 & 
+                !req3 & 
+                !up_button1.active    &
+                !up_button2.active    & 
+                !floor_button1.active &
+                !floor_button2.active;
+
+
+-- <ADD DEFINITIONS HERE>
+
+---------------------------------------------------------------------------
+-- Section 3.2, Q1: LTL Properties
+---------------------------------------------------------------------------
+
+--2: (a)
+-- LTLSPEC G(ifidle | (go__up & !go__dn) | (!go__up & go__dn));
+LTLSPEC !G(go__up & go__dn);
+
+--3: (b)
+LTLSPEC G((req_floor_0 -> F stopped_at0) & (req_floor_1 -> F stopped_at1) &
+        (req_floor_2 -> F stopped_at2) & (req_floor_3 -> F stopped_at3));
+
+--4: (c)
+
+-- LTLSPEC G(premise -> F (stopped_at1 & X X stopped_at2));
+-- Because the lift should first stop level 1 and then stop at level 2 immediately.
+-- Thus, I use two Xs.
+
+LTLSPEC G(premise -> (((stopped_at0 U lift.moving) U stopped_at1) U lift.moving) U stopped_at2);
+
+-- some times the lift will go up to lift 3 and do not stop there, it is wired 
+
+--5: (d)
+LTLSPEC G(premise2 & G extra -> (((stopped_at0 U lift.moving) U stopped_at2) U lift.moving) U stopped_at1);
+
+---------------------------------------------------------------------------
+-- Section 3.2, Q2: CTL Properties
+---------------------------------------------------------------------------
+
+--0: (a)
+
+-- CTLSPEC EG(stopped_at3 -> AG stopped_at3);
+CTLSPEC EF (EG stopped_at3);
+
+--1: (b)
+
+CTLSPEC AG EF stopped_at0;
+
+---------------------------------------------------------------------------
+-- Section 3.3, Q1: LTL Property showing bug
+---------------------------------------------------------------------------
+
+--6:
+LTLSPEC G !req2 -> G !stopped_at2
+ 
+---------------------------------------------------------------------------
+-- Section 3.3, Q2: Description of counter example behaviour
+---------------------------------------------------------------------------
+
+-- <INSERT YOUR DESCRIPTION HERE>
+
+-- At the beginning, In state 1.1, every state of identifiers is false except
+-- stopped_at0 and initial state of mode is idle.
+
+-- In the next state, which is state 1.2, the lift starts to go up and the down
+-- button of floor 1 is active, as well as the up button of floor 0.
+
+-- After that, the state of mode changes to going_up and reaches lift.position = 1
+-- in state 1.3. In this state, lift.moving = TRUE and req0 is TURE. Curently,
+-- any other values of buttons of all the floors except floor 0 is FALSE.
+
+-- However, the state of lift.position does not change to 0 but 2 in state 1.5.
+-- It is strange that, any buttons of floor 2 and floor 3 never has become active
+-- until now.
+
+-- Finally, in the state 1.6 the value of stopped_at2 is TRUE and the value of 
+-- req2 is FALSE throughout the states from 1.1 to 1.6.
+
+-- <Analysis>
+
+-- Why the position of lift changes from 1 to 2?
+-- If go_up is TRUE and position != 3 the position will increase by 1.
+-- Thus, let us trace the behavior of go_up and lift.position.
+
+-- Obviously, lift.position is not 3. This is no problem.
+-- And go_up is TRUE. Is it reliable? 
+-- The definition of go_up is that go_up := mode = going_up & ! (service_up & lift.moving);
+-- go_up changes to FALSE after lift.position changes from 1 to 2. But it should change before
+-- position changes.
+
+-- The reason is the value of mode is not changed exactly. Thus,I think this is bug of NuSMV itself.
+-- However some places of the model of lift isn not sound and complete. We can fix to suit the behavior
+-- of go_up. Exactly, we should change fix service.
+
+-- About how to fix this bug, please refer to lift-fixed.smv

@@ -1,0 +1,24 @@
+Yi Zhen
+Assignment 4. Due 4pm Thursday 17 March 2016.
+
+Well done. 5(2/2)
+Key: k(m/n)
+k points achieved (out of 5)
+(m/n) number of stretch exercises completed/attempted.
+
+
+    Smallstep (Smallstep.v):
+        eval__multistep				good
+        step__eval (stretch)			good
+        multistep__eval (stretch) 		good
+    StlcProp (StlcProp.v):
+        types_unique (stretch)			skipped
+        progress_preservation_statement 	good
+    MoreStlc (MoreStlc.v):
+        Let					good
+        Empty					good [1]
+        Fixpoint				good
+    Typechecking (Typechecking.v):
+        Extend the typechecker (stretch)	skipped
+
+[1] Better to put !!! on the line before changes, rather than the line after.

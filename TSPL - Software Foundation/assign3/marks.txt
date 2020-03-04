@@ -1,0 +1,46 @@
+Zhen, Yi
+Assignment 3. Due 4pm Thursday 3 March 2016.
+
+Well done. 5(3/3)
+Key: k(m/n)
+k points achieved (out of 5)
+(m/n) number of stretch exercises completed/attempted.
+
+
+    ProofObjects (ProofObjects.v):
+        leibniz_equality (stretch)		good [!]
+    Maps (Maps.v):
+        t_update_shadow				good
+        beq_idP (stretch)			good
+        t_update_permute (stretch)		good
+    Imp (Imp.v):
+        bevalR					good
+        no_whiles_terminating			good
+        stack_compiler (stretch)		skipped
+        stack_compiler_correct (stretch)	skipped
+    Equiv (Equiv.v):
+        swap_if_branches			good
+        assign_aequiv				good
+        CIf_congruence				good
+        fold_constants_com_sound		good
+        himp_ceval (stretch)			skipped
+        havoc_swap (stretch)			skipped
+    Hoare (Hoare.v):
+        swap_exercise				good
+        hoare_repeat				good [1]
+        himp_hoare (stretch)			skipped
+    Hoare2 (Hoare2.v):
+        parity_formal (stretch)			skipped
+        factorial				good
+        factorial_dec				good
+
+
+[!] The proof was indeed correct, which is good.
+    Still, during the exam make sure everything compiles as it is.
+
+
+[1] Could prove a stronger condition (by combining hoare_while and hoare_seq):
+
+         {{P}} c {{Q}}  {{Q /\ ~b}} c {{Q}}
+        -------------------------------------  (hoare_repeat)
+        {{P}} REPEAT c UNTIL b END {{Q /\ b}}

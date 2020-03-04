@@ -1,0 +1,22 @@
+let comments = "lessorequal must be positive numbers" in
+let comments2 = "check the suffix of the second string" in
+let rec lessorequal(input: int*int):bool =
+  let (a,b) = input in
+  if (a==0) then true
+  else if (b==0) then false
+  else lessorequal(a-1,b-1) in
+let rec slice(input: str *(int*int)):str =
+  let (s,p) = input in
+  let (pos,len) = p in
+  if (len == 0) then ""
+  else if (pos==length(s)) then ""
+  else concat(index(s,pos),slice(s,(pos+1,len-1))) in
+let rec suffixcheck(input: str * str) : bool = 
+  let (s1,s2) = input in
+  if lessorequal(length(s1),length(s2)) then 
+    if (s1 == slice(s2, (0, length(s1))))
+    then true
+    else suffixcheck(s1,slice(s2,(1, length(s2))))
+  else false in
+let substring = suffixcheck 
+in (substring("ab","abc"), substring("abc","dsfsfhabdcsdfasabdc"))

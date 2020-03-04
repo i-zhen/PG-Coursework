@@ -1,0 +1,45 @@
+Zhen, Yi
+Assignment 2. Due 4pm Thursday 11 February 2016.
+
+Well done. 5(3/4)
+Key: k(m/n)
+k points achieved (out of 5)
+(m/n) number of stretch exercises completed/attempted.
+
+
+    Poly (Poly.v):
+        poly_exercises				good
+        more_poly_exercises			good
+        map_rev					good
+        flat_map				good [1]
+    Tactics (Tactics.v):
+        beq_nat_true				good
+        beq_nat_sym				good
+        beq_nat_trans (stretch)			good
+        forall_exists_challenge (stretch)	good [2]
+    Logic (Logic.v):
+        iff_properties				good
+        or_distributes_over_and			good
+        contrapositive				good
+        not_both_true_and_false			good
+        dist_not_exists				good
+        beq_nat_false_iff			good [3]
+        not_exists_dist (stretch)		good
+        classical_axioms (stretch)		good, but incomplete [4]
+    IndProp (IndProp.v):
+        le_exercieses				good
+        palindromes (stretch)			skipped
+        palindromes_converse (stretch)		skipped
+        pigeonhole_principle (stretch)		skipped
+
+
+[1] Could reuse append for a simpler definition.
+
+[2] Could reuse andb and orb for a simpler definition.
+
+[3] Could split a large proof to a simpler lemma.
+
+[4] Iff is an equivalence relation, therefore you could have stated:
+
+    excluded_middle <-> classic
+

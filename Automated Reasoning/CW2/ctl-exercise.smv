@@ -1,0 +1,175 @@
+--=========================================================================
+-- AR 2015-16: Coursework 2
+--=========================================================================
+-- Student UUN: s1563190
+
+--=========================================================================
+-- Sec 2.2: CTL Exercise
+--=========================================================================
+
+----------------------------------------------------------------------------
+-- Module bringing together modules showing inequivalence
+----------------------------------------------------------------------------
+
+MODULE main
+VAR
+  a : model_a;
+  e : model_e;
+  c : model_c;
+  f : model_f;
+  h : model_h;
+  -- <ADD EXTRA STATE VARIABLES HERE, AS NECESSARY>
+
+----------------------------------------------------------------------------
+-- Part (a)
+----------------------------------------------------------------------------
+-- Formulas equivalent? No
+
+MODULE model_a
+VAR
+  st : 0..1;
+DEFINE
+  phi := st = 1;
+ASSIGN
+  init(st) := 0;
+  next(st) :=
+    case
+      st = 0 : 1;
+      st = 1 : 1;
+    esac;
+
+CTLSPEC EF phi
+CTLSPEC EG phi
+
+----------------------------------------------------------------------------
+-- Part (b)
+----------------------------------------------------------------------------
+-- Formulas equivalent? Yes
+-- <MODEL AND QUERIES SHOWING INEQUIVALENCE>
+-- OR <BRIEF EXPLANATION FOR EQUIVALENCE>
+
+-- For this CTL specification, the semantics of 2 formulas are equavelent.
+-- Think that, in the future, there exsit expression phi is true or exist expression sai is 
+-- true. It is equavelent to that exists phi or sai is true in the future.
+-- More concretely, if EF phi or EF sai is true, then EF phi | EF sai must be true
+-- and EF (phi | sai) must be true. IF EF phi and EF sai are false, then EF phi | EF sai
+-- and EF (phi | sai) must be false.
+
+----------------------------------------------------------------------------
+-- Part (c)
+----------------------------------------------------------------------------
+-- Formulas equivalent? No
+-- <MODEL AND QUERIES SHOWING INEQUIVALENCE>
+
+MODULE model_c
+VAR
+  st : 1..3;
+DEFINE
+  phi := st = 2;
+  sai := st = 3;
+ASSIGN
+  init(st) := 1;
+  next(st) :=
+    case
+      st = 1 : {2, 3};
+      st = 2 : 2;
+      st = 3 : 3;
+    esac;
+
+CTLSPEC (AF phi) | (AF sai)
+CTLSPEC AF (phi | sai)
+
+-- OR <BRIEF EXPLANATION FOR EQUIVALENCE>
+----------------------------------------------------------------------------
+-- Part (d)
+----------------------------------------------------------------------------
+-- Formulas equivalent? Yes
+-- <MODEL AND QUERIES SHOWING INEQUIVALENCE>
+-- OR <BRIEF EXPLANATION FOR EQUIVALENCE>
+
+-- By applying the de-Morgan rule, we know that AF !phi always equavelents to 
+-- !EG phi.
+
+----------------------------------------------------------------------------
+-- Part (e)
+----------------------------------------------------------------------------
+-- Formulas equivalent? No
+-- <MODEL AND QUERIES SHOWING INEQUIVALENCE>
+MODULE model_e
+VAR
+  st : 0..1;
+DEFINE
+  phi := st = 1;
+ASSIGN
+  init(st) := 0;
+  next(st) :=
+    case
+      st = 0 : 1;
+      st = 1 : 1;
+    esac;
+
+CTLSPEC EF (!phi)
+CTLSPEC !(AF phi)
+-- OR <BRIEF EXPLANATION FOR EQUIVALENCE>
+
+----------------------------------------------------------------------------
+-- Part (f)
+----------------------------------------------------------------------------
+-- Formulas equivalent? No
+-- <MODEL AND QUERIES SHOWING INEQUIVALENCE>
+MODULE model_f
+VAR
+  st : 0..2;
+DEFINE
+  phi1 := st = 0;
+  phi2 := st = 2;
+  phi3 := st = 1;
+ASSIGN
+  init(st) := 0;
+  next(st) :=
+    case
+      st = 0 : 1;
+      st = 1 : 2;
+      TRUE   : st;
+    esac;
+
+CTLSPEC A[phi1 U A[phi2 U phi3]]
+CTLSPEC A[A[phi1 U phi2] U phi3]
+
+-- OR <BRIEF EXPLANATION FOR EQUIVALENCE>
+
+----------------------------------------------------------------------------
+-- Part (g)
+----------------------------------------------------------------------------
+-- Formulas equivalent? Yes
+-- <MODEL AND QUERIES SHOWING INEQUIVALENCE>
+-- OR <BRIEF EXPLANATION FOR EQUIVALENCE>
+
+-- AG phi -> EG phi. AG phi(forall) is a more strong than EG phi(exist). We can use truth table to
+-- check if it is true directly. And we can make an arbitray conclusion: if EG phi is false
+-- then AG phi must be false. If EG phi is true, AG phi can be false. If AG phi is true
+-- then EG phi must be true.
+
+----------------------------------------------------------------------------
+-- Part (h)
+----------------------------------------------------------------------------
+-- Formulas equivalent? No
+-- <MODEL AND QUERIES SHOWING INEQUIVALENCE>
+MODULE model_h
+VAR
+  st : 0..2;
+DEFINE
+  phi := st >= 1;
+ASSIGN
+  init(st) := 1;
+  next(st) :=
+    case
+      st = 0 : 0;
+      st = 1 : {0, 2};
+      st = 2 : 2;
+    esac;
+
+CTLSPEC TRUE;
+CTLSPEC EG phi -> AG phi
+-- OR <BRIEF EXPLANATION FOR EQUIVALENCE>
+

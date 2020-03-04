@@ -1,0 +1,111 @@
+diff -uNr http/include/functions.php update/include/functions.php
+--- http/include/functions.php	2016-03-14 12:51:05.797116458 +0000
++++ update/include/functions.php	2016-03-14 12:59:55.877138957 +0000
+@@ -1,5 +1,7 @@
+ <?php
+-header("X-XSS-Protection: 0"); // ;-)
++header("X-XSS-Protection: 1"); // ;-)
++
++session_start();
+ 
+ // Reload the page
+ function reload_page()
+@@ -37,8 +39,10 @@
+ // Create a session token
+ function create_token($username)
+ {
+-    setcookie("username", $username);
+-    setcookie("session", md5($username));
++    $_SESSION["username"] = $username;
++    $_SESSION["session"]  = md5($username);
++    //setcookie("username", $username);
++    //setcookie("session", md5($username));
+ }
+ 
+ // Check a session token
+@@ -50,8 +54,10 @@
+ // Destroy the session token
+ function logout()
+ {
+-    setcookie("username", "", time()-3600);
+-    setcookie("session", "", time()-3600);
++    unset($_SESSION["username"]);
++    unset($_SESSION["session"]);
++    //setcookie("username", "", time()-3600);
++    //setcookie("session", "", time()-3600);
+ }
+ 
+ function login($username, $password)
+@@ -82,9 +88,9 @@
+ // Check if there is a user signed in
+ function check_signed_in()
+ {
+-    if (isset($_COOKIE['username'], $_COOKIE['session']))
++    if (isset($_SESSION['username'], $_SESSION['session']))
+     {
+-        if (check_token($_COOKIE['username'], $_COOKIE['session']))
++        if (check_token($_SESSION['username'], $_SESSION['session']))
+      	{   return True; }
+         else
+         {
+@@ -170,11 +176,25 @@
+         {
+             $post = $db->prepare("UPDATE image SET link=:link WHERE user=:user");
+         }
++        //black list
++        $substr = "'";
++        $pos = strpos($link, $substr);
++        //white list
++        $split_link =array_reverse(explode(".", $link));
++        $pic_array = array("jpg", "bmp", "gif", "png");
++        $format = in_array($split_link[0], $pic_array);
++        if($pos === false){
++            if($format === false){
++                echo "Illegal input, the format must be one of jpg/png/bmp/gif";
++            } else {
++                $post->bindParam(':link', $link);
++                $post->bindParam(':user', $user);
++                $post->execute();
++            }
++        } else {
++            echo "Illegal input, cannot include single quote";
++        }
+ 
+-        $post->bindParam(':link', $link);
+-        $post->bindParam(':user', $user);
+-
+-        $post->execute();
+     }
+     catch(PDOException $e)
+     {
+diff -uNr http/index.php update/index.php
+--- http/index.php	2016-03-14 12:51:05.800450278 +0000
++++ update/index.php	2016-03-14 12:51:28.020435908 +0000
+@@ -34,7 +34,7 @@
+         {
+             if (isset($_POST['post']))
+             {
+-             	$whose = $_COOKIE['username'];
++             	$whose = $_SESSION['username'];
+                 $link = $_POST['link'];
+ 
+                 submit_image_link($whose, $link);
+diff -uNr http/vote.php update/vote.php
+--- http/vote.php	2016-03-14 12:51:05.790448711 +0000
++++ update/vote.php	2016-03-14 12:51:28.023769927 +0000
+@@ -36,13 +36,13 @@
+             {
+              	print ("<p>Invalid vote!!</p>");
+             }
+-            elseif ($_COOKIE['username'] == $_GET['vote'])
++            elseif ($_SESSION['username'] == $_GET['vote'])
+             {
+                 print ("<p>You cannot vote for yourself!!</p>");
+             }
+             else
+             {
+-                if(vote($_COOKIE['username'],$_GET['vote'])) 
++                if(vote($_SESSION['username'],$_GET['vote'])) 
+                 {
+                     header("Location:/");
+                 }

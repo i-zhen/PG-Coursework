@@ -1,0 +1,248 @@
+theory ex8_soln
+imports Main
+
+begin
+
+(* This file introduces you to a proving by induction and case-by-case
+reasoning in Isabelle *)
+
+(* Isabelle standard library pre-defines the 'list' datatype as
+if it were written like this:
+
+datatype 'a list = Nil | Cons "'a" "'a list"
+
+along with some special notation so that Nil can be written [],
+and Cons x xs can be written x#xs. *)
+
+(* The append example from the lectures looks like this. I have
+   renamed it to 'app' so it doesn't clash with the standard 'append'
+   function. *)
+primrec app :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list"
+where
+"app []      y = y" |
+"app (a # x) y = a # app x y"
+
+(* When processing a 'primrec' definition, Isabelle turns each of the
+equations into a rule. For 'app', these are called app.simps(1) and
+app.simps(2). As the names imply, these are intended for use by the
+'simp' proof method. *)
+
+thm app.simps(1)
+thm app.simps(2)
+
+(* Complete the proof of the following lemma by manually applying the
+   rules app.simps(1), app.simps(2), and refl. You will need to use
+   the proof methods 'subst' and the rule 'subst' to apply the
+   induction hypothesis. *)
+lemma "app x (app y z) = app (app x y) z"
+(* 'induct_tac x' starts an inductive proof on 'x'. Isabelle uses
+   type inference to work out that 'x' is a list, so it uses the
+   induction rule for lists. *)
+apply (induct_tac x)
+apply (subst app.simps(1))
+apply (subst app.simps(1))
+apply (rule refl)
+
+apply (subst app.simps(2))
+apply (subst app.simps(2))
+apply (subst app.simps(2))
+apply (erule subst)
+apply (rule refl)
+done
+
+(* Isabelle's simp tactic can also prove the cases here automatically,
+   after we tell it to use induction. We add [simp] to the lemma command 
+   to tell Isabelle to add it to the database of simplification rules. *)
+lemma [simp] : "app x (app y z) = app (app x y) z"
+apply (induct_tac x)
+apply simp
+apply simp
+done
+
+(* The reverse function from the lectures is defined as follows *)
+primrec reverse :: "'a list \<Rightarrow> 'a list"
+where
+"reverse [] = []" |
+"reverse (a # l) = app (reverse l) (a # [])"
+
+(* Prove the following lemma, following the plan described in Lecture
+10. You will need to formulate some other lemmas (and add them to the
+simplifier database) to get this proof to work. Each proof will just
+work by induction, and then 'simp', provided the right lemmas have
+been done beforehand. *)
+lemma [simp] : "app x [] = x"
+apply (induct_tac x)
+apply simp
+apply simp
+done
+
+lemma [simp] : "reverse (app x y) = app (reverse y) (reverse x)"
+apply (induct_tac x)
+apply simp
+apply simp
+done
+
+lemma "reverse (reverse l) = l"
+apply (induct_tac l)
+apply simp
+apply simp
+done
+
+
+(* We can also define functions by cases on lists. This function returns
+None if the input list is empty, or 'Some a' if the first element of
+the list is 'a'. *)
+
+definition get_head :: "'a list \<Rightarrow> 'a option"
+where "get_head l = (case l of [] \<Rightarrow> None | x # _ \<Rightarrow> Some x)"
+
+(* Similar to the use of 'case' in a program, Isabelle provides
+support for reasoning by cases in proofs by using 'case_tac'. Here are
+some examples. *)
+
+(* The following lemma states that get_head returns 'Some y' if the list
+   is not empty *)
+lemma "l \<noteq> [] \<longrightarrow> (\<exists>y. get_head l = Some y)"
+apply (rule impI)
+(* We use case_tac to split the proof into two cases, depending on
+   whether l = [], or l = x#xs *)
+apply (case_tac l)
+(* If l = [], then this contradicts our assumption that l \<noteq> [] *)
+apply (erule notE)
+apply assumption
+(* If l = a # list, then we can proceed *)
+apply (rule_tac x=a in exI)
+apply (simp add: get_head_def) (* get_head_def is the rewrite rule
+                                  corresponding to the definition of
+                                  get_head *)
+done
+
+(* Exercise: Prove the next lemma that shows that a non-empty list is
+   of the form x # xs. Use case_tac as in the previous lemma. *)
+lemma list_not_empty : "l \<noteq> [] \<Longrightarrow> (\<exists>x xs. l = x#xs)"
+(* XXX *)
+apply (case_tac l)
+(* Case l = [] *)
+apply (erule notE)
+apply assumption
+(* Case l = a # list *)
+apply (rule_tac x=a in exI)
+apply (rule_tac x=list in exI)
+apply assumption
+done
+
+(* The following function searches a list for the last element,
+   or returns 'None' if it doesn't exist. It is defined by
+   recursion on the list. *)
+primrec get_last :: "'a list \<Rightarrow> 'a option"
+where "get_last []       = None"
+    | "get_last (x # xs) = (case xs of [] \<Rightarrow> Some x | _ # ys \<Rightarrow> get_last xs)"
+
+(* As above for 'app', Isabelle proves two rewrite rules for us, which
+   are named get_last.simps(1) and get_last.simps(2), one for each
+   clause of the definition. *)
+
+thm get_last.simps(1)
+thm get_last.simps(2)
+
+(* As the name implies, these are usually used by Isabelle automatic
+   'simp' proof method. However, it is possible to apply them by
+   hand. The next proof goes through two versions, showing how to prove
+   the same result in three different ways. The first one is by hand, and
+   the second uses Isabelle's automatic facilities. *)
+
+(* This lemma states that if a list is non-empty, then there exists
+an element that get_last returns. *)
+lemma "l \<noteq> [] \<longrightarrow> (\<exists>y. get_last l = Some y)"
+(* list.induct is the structural induction rule for lists, it is an
+   alternative to using 'induct_tac' *)
+apply (rule list.induct)
+
+(* The base case: we have to prove that [] \<noteq> [] is a contradiction. *)
+apply (rule impI)
+apply (erule notE)
+apply (rule refl)
+
+(* Step case: l is replaced by 'a # list' *)
+apply (rule impI)
+(* Rewrite the 'get_last' in the goal, using the definition *)
+apply (subst get_last.simps(2))
+
+(* Now the proof splits into two cases, depending on whether or not
+'list' is empty, we can do this using case_tac. 'case_tac' splits the
+goal into two subgoals, one with the assumption that list = [], and
+one with the assumption that list \<noteq> [].
+
+This use of case tac is slightly different to the one above. Above,
+'case_tac l' split on the structure of the list 'l' (either [] or
+x#xs). Here, 'case_tac "l = []"' splits on whether or not the formula
+"l = []" is true or false. A similar effect can be obtained by using
+thje rules disjE and excluded_middle. *)
+apply (case_tac "list = []")
+
+(* If 'list' is empty, the last element in 'l' must have been 'a' *)
+apply (rule_tac x=a in exI)
+apply (erule ssubst)
+(* list.simps(4) is a rule that describes how 'case' works on an
+   empty list. *)
+apply (subst list.simps(4))
+apply (rule refl)
+
+(* If 'list' is not empty, then we have to use the induction
+   hypothesis to get the last element. *)
+apply (erule impE)
+apply assumption
+apply (erule exE)
+
+(* We now know that get_last list = Some y. So 'y' is the last element
+of the whole list. *)
+apply (rule_tac x=y in exI)
+(* And we can rewrite the goal to remove 'get_last list' *)
+apply (erule ssubst)
+
+(* Now we need to get rid of the case expression. We need to deduce
+from the fact that list \<noteq> [] that list must be of the form x # xs. We
+use list_not_empty for this. *)
+apply (cut_tac l=list in list_not_empty)
+apply assumption
+apply (erule exE)
+apply (erule exE)
+apply (erule ssubst)
+(* list.simps(5) describes how 'case' works on lists of the form x#xs *)
+apply (subst list.simps(5))
+apply (rule refl)
+done
+
+(* An alternative proof uses 'case_tac' on 'list' directly. Do this in
+   the proof below. Instead of manually applying the rewrite rules, use
+   'simp', which should make the proof much shorter. *)
+lemma "l \<noteq> [] \<longrightarrow> (\<exists>y. get_last l = Some y)"
+apply (rule list.induct)
+
+(* Isabelle's simp proof method can handle the base case for us,
+instead of doing it by hand as we did above. *)
+apply simp
+
+(* The step case *)
+apply (case_tac list, simp, simp)
+done
+
+(* The simp tactic is sometimes sensitive to exactly how the problem
+is set up. For example using 'simp' here straight away fails, but
+rearranging the problem using impI and then notI allows us to use
+simp: *)
+lemma "a \<in> A \<longrightarrow> A \<noteq> {}"
+apply (rule impI)
+apply (rule notI)
+apply simp
+done
+
+(* Sometimes, simp is not enough, but Isabelle's auto tactic knows enough
+   from the pre-existing theories to prove simple facts: *)
+lemma "A \<noteq> {} \<longrightarrow> (\<exists>a. a \<in> A)"
+apply auto
+done
+
+
+
+end
